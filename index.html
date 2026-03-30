@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dandy | داندي للمستحضرات</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <img id="mainLogo" src="logo.png" alt="Dandy">
+            <div class="brand-name">
+                <h1 class="logo-text">DANDY</h1>
+                <small>PREMIUM CARE</small>
+            </div>
+        </div>
+        
+        <nav class="main-nav">
+            <a href="index.html" class="nav-link active">الرئيسية</a>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="ابحثي عن منتجك..." onkeyup="searchProduct()">
+                <button><i class="fa fa-search"></i></button>
+            </div>
+        </nav>
+
+        <div class="header-icons">
+            <div class="cart-trigger" onclick="toggleCart()">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span id="cart-count">0</span>
+            </div>
+        </div>
+    </header>
+
+    <div id="side-cart" class="cart-drawer">
+        <div class="cart-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #eee;">
+            <h3 style="margin:0;">حقيبة داندي <i class="fa-solid fa-wand-magic-sparkles"></i></h3>
+            <i class="fa fa-times close-cart" onclick="toggleCart()" style="font-size: 1.5rem; cursor: pointer;"></i>
+        </div>
+        <div id="cart-items" class="cart-body" style="padding: 20px; flex: 1; overflow-y: auto;">
+            </div>
+        <div class="cart-footer" style="padding: 20px; border-top: 1px solid #eee;">
+            <div class="total-price" style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px;">
+                <span>الإجمالي:</span>
+                <span style="color:#ff85a2;"><span id="cart-total">0</span> EGP</span>
+            </div>
+            <button class="checkout-btn" onclick="sendToWhatsapp()" style="width:100%; background:#25d366; color:white; border:none; padding:15px; border-radius:8px; font-weight:bold; cursor:pointer;">
+                إرسال الطلب عبر واتساب <i class="fab fa-whatsapp"></i>
+            </button>
+        </div>
+    </div>
+
+    <section class="hero" id="hero-bg">
+        <div class="hero-overlay" id="main-hero-overlay">
+            <h2 id="banner-text">جمالك يبدأ بلمسة داندي</h2>
+            <p>أفضل مستحضرات العناية بالبشرة والتجميل</p>
+            <button class="hero-btn" onclick="document.getElementById('main-content').scrollIntoView({behavior: 'smooth'})">
+                تسوقي الآن
+            </button>
+        </div>
+    </section>
+
+    <main id="main-content" class="products-section">
+        </main>
+
+    <footer>
+        <div class="footer-logo">DANDY<span>.</span></div>
+        <div class="footer-tagline">01097729383 | نعتني بجمالك بكل حب</div>
+        <div class="social-icons">
+            <a href="https://www.facebook.com/share/g/1AnwTQVYWK/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.instagram.com/dandy_skincare_cosmotics" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://wa.me/201097729383" target="_blank"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <a href="admin.html" class="admin-link">لوحة الإدارة</a>
+        <div class="copyright">©️ 2026 Dandy Brand. جميع الحقوق محفوظة.</div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

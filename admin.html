@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة تحكم داندي | Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --pink: #ff85a2; --gold: #d4af37; --dark: #1a1a1a; --soft-pink: #fff0f3; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; direction: rtl; }
+        .admin-box { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h1 { color: var(--pink); text-align: center; border-bottom: 2px solid var(--soft-pink); padding-bottom: 10px; margin-bottom: 30px; }
+        h2 { font-size: 1.2rem; color: var(--dark); margin-top: 30px; border-right: 4px solid var(--gold); padding-right: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #555; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        .btn-save { background: var(--pink); color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 25px; font-weight: bold; transition: 0.3s; }
+        .btn-save:hover { background: var(--dark); }
+        .btn-add-section { background: var(--gold); margin-top: 10px; padding: 10px; width: auto; min-width: 120px; }
+        
+        .sections-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .section-item { background: var(--soft-pink); padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--pink); font-size: 0.9rem; }
+        .del-sec-btn { color: red; cursor: pointer; border: none; background: none; font-weight: bold; font-size: 1.2rem; }
+
+        .products-manager { margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .mini-card { background: #fafafa; border: 1px solid #eee; padding: 10px; border-radius: 8px; text-align: center; }
+        .mini-card img { width: 100%; height: 120px; object-fit: cover; border-radius: 5px; }
+        .preview-img { width: 120px; height: 80px; object-fit: cover; margin-top: 15px; border-radius: 8px; display: none; border: 2px solid var(--soft-pink); }
+        .del-prod-btn { background: #ff4d4d; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="admin-box">
+    <h1>إدارة براند داندي 👑</h1>
+
+    <section>
+        <h2>1. إعدادات المظهر</h2>
+        <label>تغيير اللوجو:</label>
+        <input type="file" id="logoInput" accept="image/*" onchange="preview(this, 'logoPreview')">
+        <img id="logoPreview" class="preview-img">
+
+        <label>تغيير البانر الرئيسي:</label>
+        <input type="file" id="bannerInput" accept="image/*" onchange="preview(this, 'bannerPreview')">
+        <img id="bannerPreview" class="preview-img">
+
+        <label>نص البانر:</label>
+        <input type="text" id="bannerText" placeholder="اكتبي النص الذي سيظهر فوق البانر">
+        
+        <button class="btn-save" onclick="saveAppearance()">حفظ المظهر ✨</button>
+    </section>
+
+    <section>
+        <h2>2. إدارة أقسام المنتجات (السكاشن)</h2>
+        <div style="display: flex; gap: 10px; align-items: flex-end;">
+            <div style="flex: 1;">
+                <label>أضيفي قسم جديد (مثل: عروض، لوشن، صابون):</label>
+                <input type="text" id="newSectionName" placeholder="اسم القسم...">
+            </div>
+            <button class="btn-save btn-add-section" onclick="addNewSection()">إضافة قسم +</button>
+        </div>
+        <div class="sections-list" id="sectionsList"></div>
+    </section>
+
+    <section>
+        <h2>3. إضافة منتج جديد</h2>
+        <label>اسم المنتج:</label>
+        <input type="text" id="pName">
+        
+        <div style="display:flex; gap:10px;">
+            <div style="flex:1;"><label>السعر:</label><input type="number" id="pPrice"></div>
+            <div style="flex:1;"><label>الخصم %:</label><input type="number" id="pDiscount" value="0"></div>
+        </div>
+
+        <label>القسم (السكشن):</label>
+        <select id="pSection"></select>
+
+        <label>تفاصيل المنتج:</label>
+        <textarea id="pDetails" placeholder="مواصفات المنتج..."></textarea>
+
+        <label>صورة المنتج:</label>
+        <input type="file" id="pImgInput" accept="image/*" onchange="preview(this, 'pPreview')">
+        <img id="pPreview" class="preview-img">
+
+        <button class="btn-save" onclick="saveProduct()">نشر المنتج 🚀</button>
+    </section>
+
+    <section>
+        <h2 style="color: var(--pink);">4. المنتجات الحالية</h2>
+        <div class="products-manager" id="productsManager"></div>
+    </section>
+</div>
+
+<script>
+    async function toBase64(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+        });
+    }
+
+    function preview(input, imgId) {
+        const img = document.getElementById(imgId);
+        if(input.files[0]) { img.style.display = 'block'; img.src = URL.createObjectURL(input.files[0]); }
+    }
+
+    // حفظ المظهر (اللوجو والبانر والنص)
+    async function saveAppearance() {
+        const logoFile = document.getElementById('logoInput').files[0];
+        const bannerFile = document.getElementById('bannerInput').files[0];
+        const text = document.getElementById('bannerText').value;
+
+        if(logoFile) localStorage.setItem('dandyLogo', await toBase64(logoFile));
+        if(bannerFile) localStorage.setItem('dandyBanner', await toBase64(bannerFile));
+        localStorage.setItem('dandyBannerText', text);
+        
+        alert("تم حفظ المظهر بنجاح!");
+    }
+
+    // إدارة الأقسام
+    function addNewSection() {
+        const name = document.getElementById('newSectionName').value.trim();
+        if(!name) return alert("اكتبي اسم القسم!");
+        let sections = JSON.parse(localStorage.getItem('dandySections')) || ["الأكثر مبيعاً"];
+        if(!sections.includes(name)) sections.push(name);
+        localStorage.setItem('dandySections', JSON.stringify(sections));
+        document.getElementById('newSectionName').value = "";
+        loadAdminData();
+    }
+
+    function deleteSection(index) {
+        let sections = JSON.parse(localStorage.getItem('dandySections'));
+        sections.splice(index, 1);
+        localStorage.setItem('dandySections', JSON.stringify(sections));
+        loadAdminData();
+    }
+
+    // حفظ المنتج
+    async function saveProduct() {
+        const imgFile = document.getElementById('pImgInput').files[0];
+        const name = document.getElementById('pName').value;
+        const oldPrice = parseFloat(document.getElementById('pPrice').value);
+        const discount = parseFloat(document.getElementById('pDiscount').value) || 0;
+        
+        if(!imgFile || !name || isNaN(oldPrice)) return alert("أكمل البيانات!");
+
+        const product = {
+            id: Date.now(),
+            name, 
+            details: document.getElementById('pDetails').value,
+            oldPrice, 
+            discount,
+            price: (oldPrice - (oldPrice * (discount / 100))).toFixed(0),
+            section: document.getElementById('pSection').value,
+            image: await toBase64(imgFile)
+        };
+
+        let products = JSON.parse(localStorage.getItem('dandyProducts')) || [];
+        products.push(product);
+        localStorage.setItem('dandyProducts', JSON.stringify(products));
+        alert("تم الحفظ!"); location.reload();
+    }
+
+    function loadAdminData() {
+        // تحميل الأقسام
+        const sections = JSON.parse(localStorage.getItem('dandySections')) || ["الأكثر مبيعاً"];
+        document.getElementById('pSection').innerHTML = sections.map(s => `<option value="${s}">${s}</option>`).join('');
+        document.getElementById('sectionsList').innerHTML = sections.map((s, i) => `
+            <div class="section-item">
+                <span>${s}</span>
+                <button class="del-sec-btn" onclick="deleteSection(${i})">×</button>
+            </div>
+        `).join('');
+
+        // تحميل نص البانر المخزن
+        document.getElementById('bannerText').value = localStorage.getItem('dandyBannerText') || "";
+
+        // تحميل المنتجات
+        const products = JSON.parse(localStorage.getItem('dandyProducts')) || [];
+        document.getElementById('productsManager').innerHTML = products.map((p, i) => `
+            <div class="mini-card">
+                <img src="${p.image}">
+                <h4>${p.name}</h4>
+                <small>${p.section}</small>
+                <button class="del-prod-btn" onclick="deleteProduct(${i})">حذف</button>
+            </div>
+        `).join('');
+    }
+    
+    function deleteProduct(index) {
+        if(confirm("حذف المنتج؟")) {
+            let products = JSON.parse(localStorage.getItem('dandyProducts'));
+            products.splice(index, 1);
+            localStorage.setItem('dandyProducts', JSON.stringify(products));
+            loadAdminData();
+        }
+    }
+
+    window.onload = loadAdminData;
+</script>
+</body>
+</html>
